@@ -1,0 +1,16 @@
+# Windows
+
+
+# Python
+*.py[cod]
+
+# Pycharm
+.idea/
+*/__pycache__/
+
+# Porject
+*.log
+
+# temporary*
+image/
+log/
