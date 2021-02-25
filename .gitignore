@@ -11,6 +11,6 @@
 # Porject
 *.log
 
-# temporary*
+# temporary
 image/
 log/
