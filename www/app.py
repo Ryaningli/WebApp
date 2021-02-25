@@ -1,9 +1,9 @@
 import asyncio
-import os
-import json
-import time
-from datetime import datetime
 from aiohttp import web
+from Log import MyLog
+
+logger = MyLog.get_log()
+log = logger.get_logger()
 
 
 async def index(request):
@@ -18,7 +18,7 @@ async def init():
     await runner.setup()
     site = web.TCPSite(runner, '127.0.0.1', 9000)
     await site.start()
-    print('服务启动')
+    log.info('服务启动')
     return site
 
 
