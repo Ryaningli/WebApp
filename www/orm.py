@@ -124,3 +124,76 @@ class ModeMetaclass(type):
         attrs['__update__'] = 'UPDATE `%s` SET %s WHERE `%s`=?' % (
             tableName, ', '.join(map(lambda f: '`%s`=?' % (mappings.get(f).name or f), fields)), primaryKey)
         attrs['__delete__'] = 'DELETE FROM `%s` WHERE `%s`=?' % (tableName, primaryKey)
+
+
+# metaclass参数提示Model要通过上面的__new__来创建
+class Model(dict, metaclass=ModeMetaclass):
+    def __init__(self, **kw):
+        super(Model, self).__init__(**kw)
+
+    # 返回参数为key的自身属性
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(r"'Model' object has no attribute '%s'" % key)
+
+    # 设置自身属性
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    # 通过属性返回想要的值
+    def getValue(self, key):
+        return getattr(self, key, None)
+
+    def getValueOrDefault(self, key):
+        value = getattr(self, key, None)
+        if value is None:
+            # 如果value是None，定位某个键：value不为None就直接返回
+            field = self.__mappings__[key]
+            if field.default is not None:
+                # 如果field.default不是None， 就把它赋值给value
+                value = field.default() if callable(field.default) else field.default
+                log.debug('使用默认值 %s: %s' % (key, str(value)))
+                setattr(self, key, value)
+        return value
+
+    # 往Model类添加class方法，就可以让所有子类调用class方法
+    @classmethod
+    async def findAll(cls, where=None, args=None, **kw):
+        sql = [cls.__select__]
+
+        if where:
+            # where 默认值为None
+            # 如果where有值就在sql加上字符串'where' 和变量where
+            sql.append('WHERE')
+            sql.append(where)
+
+        if args is None:
+            # args默认值为None
+            # 如果findAll函数未传入有效的where参数，则将'[]'传入args
+            args = []
+
+        orderBy = kw.get('orderBy', None)
+        if orderBy:
+            # orderBy有值时给sql加上它，为空时啥都不干
+            sql.append('ORDER BY')
+            sql.append(orderBy)
+
+        # 开头和orderBy类似
+        limit = kw.get('limit', None)
+        if limit is not None:
+            sql.append('LIMIT')
+            if isinstance(limit, int):
+                sql.append('?')
+                sql.append(limit)
+            elif isinstance(limit, tuple) and len(limit) == 2:
+                sql.append('?, ?')
+                args.extend(limit)
+            else:
+                raise ValueError('Invalid limit value(无效的范围值): %s' % str(limit))
+
+        rs = await select(' '.join(sql), args)
+
+        # 返回选择的列表里的所有值，完成findAll函数
+        return [cls(**r) for r in rs]
