@@ -8,7 +8,7 @@ loop = asyncio.get_event_loop()
 async def test():
     await orm.create_pool(user='ryan', password='1116', db='awesome', loop=loop)
 
-    u = User(name='B', phone='18815596967', email='16699@qq.com', password='abc123', image='about:blank')
+    u = User(name='B', phone='18815596970', email='16699@qq.com', password='abc123', image='about:blank')
 
     await u.save()
 

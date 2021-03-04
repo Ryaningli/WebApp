@@ -1,5 +1,5 @@
-from www.config import configs
+import requests
 
-c = configs
+res = requests.get('http://47.110.74.149:9000/')
 
-print(c.db.user)
+print(res.text)

@@ -4,11 +4,8 @@ import inspect
 import os
 from urllib import parse
 from aiohttp import web
-from Log import MyLog
+from log import log, logger
 from apis import APIError
-
-logger = MyLog.get_log()
-log = logger.get_logger()
 
 
 def get(path):

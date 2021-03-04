@@ -112,6 +112,9 @@ class MyLog:
         return MyLog.log
 
 
+logger = MyLog.get_log()
+log = logger.get_logger()
+
 if __name__ == "__main__":
     logger = MyLog.get_log()
     log = logger.get_logger()

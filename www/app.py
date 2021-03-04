@@ -5,12 +5,9 @@ import os
 import time
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
-from Log import MyLog
+from log import log, logger
 import orm
 from coroweb import add_routes, add_static
-
-logger = MyLog.get_log()
-log = logger.get_logger()
 
 
 def init_jinja2(app, **kw):
