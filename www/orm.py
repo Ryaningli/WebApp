@@ -1,5 +1,5 @@
 import aiomysql
-from www.Log import MyLog
+from Log import MyLog
 
 logger = MyLog.get_log()
 log = logger.get_logger()

@@ -2,4 +2,4 @@ from www.config import configs
 
 c = configs
 
-print(c.db)
+print(c.db.user)
