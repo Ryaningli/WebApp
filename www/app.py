@@ -8,6 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from log import log, logger
 import orm
 from coroweb import add_routes, add_static
+from config import configs
 
 
 def init_jinja2(app, **kw):
@@ -93,19 +94,20 @@ async def response_factory(app, handler):
 def datetime_filter(t):
     delta = int(time.time() - t)
     if delta < 60:
-        return u'1分钟前'
+        return '1分钟前'
     if delta < 3600:
-        return u'%s分钟前' % (delta // 60)
+        return '%s分钟前' % (delta // 60)
     if delta < 86400:
-        return u'%s小时前' % (delta // 3600)
+        return '%s小时前' % (delta // 3600)
     if delta < 604800:
-        return u'%s天前' % (delta // 86400)
+        return '%s天前' % (delta // 86400)
     dt = datetime.fromtimestamp(t)
-    return u'%s年%s月%s日' % (dt.year, dt.month, dt.day)
+    return '%s年%s月%s日' % (dt.year, dt.month, dt.day)
 
 
 async def init():
-    await orm.create_pool(loop=loop, host='47.110.74.149', port=3306, user='ryan', password='1116', db='awesome')
+    await orm.create_pool(loop=loop, host=configs.db.host, port=configs.db.port, user=configs.db.user,
+                          password=configs.db.password, db=configs.db.database)
     app = web.Application(loop=loop, middlewares=[
         logger_factory, response_factory
     ])
@@ -115,12 +117,19 @@ async def init():
 
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '127.0.0.1', 9000)
+    # 这里ip使用0.0.0.0，使用127.0.0.1的话外部网络无法访问
+    site = web.TCPSite(runner, '0.0.0.0', 9000)
     await site.start()
-    log.info('服务启动: http://127.0.0.1:9000...')
+    log.info('服务启动: http://0.0.0.0:9000...')
     return site
 
-
 loop = asyncio.get_event_loop()
-loop.run_until_complete(init())
-loop.run_forever()
+
+
+def run():
+    loop.run_until_complete(init())
+    loop.run_forever()
+
+
+if __name__ == '__main__':
+    run()
