@@ -150,7 +150,7 @@ class RequestHandler(object):
             for name in self._required_kw_args:
                 if not name in kw:
                     return web.HTTPBadRequest(reason='Missing argument: %s' % name)
-        log.info('call with args: %s' % str(kw))
+        log.info('call with args: %s' % str(kw))        # 此处sha1后的密码会保存在日志中，不安全
         try:
             r = await self._func(**kw)
             return r

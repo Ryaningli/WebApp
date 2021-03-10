@@ -7,6 +7,7 @@ from coroweb import get, post
 from models import User, Comment, Blog, next_id
 from apis import APIValueError, APIError
 from config import configs
+from log import log, logger
 
 
 COOKIE_NAME = 'awesession'
@@ -18,6 +19,42 @@ def user2cookie(user, max_age):
     s = '%s-%s-%s-%s' % (user.id, user.password, expires, _COOKIE_KEY)
     L = [user.id, expires, hashlib.sha1(s.encode('utf-8')).hexdigest()]
     return '-'.join(L)
+
+
+async def cookie2user(cookie_str):
+    if not cookie_str:
+        return None
+    try:
+        L = cookie_str.split('-')
+        if len(L) != 3:
+            return None
+        uid, expires, sha1 = L
+        if int(expires) < time.time():
+            return None
+        user = await User.find(uid)
+        if user is None:
+            return None
+        s = '%s-%s-%s-%s' % (uid, user.password, expires, _COOKIE_KEY)
+        if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
+            log.info('无效sha1')
+            return None
+    except Exception as e:
+        log.exception(e)
+        return None
+
+
+async def auth_factory(app, handler):
+    async def auth(request):
+        log.info('检查用户: %s %s' % (request.method, request.path))
+        request.__user__ = None
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            user = await cookie2user(cookie_str)
+            if user:
+                log.info('设置当前用户: %s' % user.phone)
+                request.__user__ = user
+        return (await handler(request))
+    return auth
 
 
 # 前端首页
@@ -107,6 +144,7 @@ async def authenticate(*, phone, password):
     r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
 
     user.password = '******'
+    user.created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(user.created_at)))    # 创建日期转正常格式
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
