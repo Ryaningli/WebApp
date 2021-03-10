@@ -11,7 +11,7 @@ grant select, insert, update, delete on awesome.* to 'ryan'@'%';
 create table users (
     `id` varchar(50) not null,
     `phone` varchar(50) not null,
-    `email` varchar(50) not null,
+    `email` varchar(50),
     `password` varchar(50) not null,
     `admin` bool not null,
     `name` varchar(50) not null,

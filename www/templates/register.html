@@ -1,15 +1,15 @@
 <!-- 继承父模板 '__base__.html' -->
 {% extends '__base__.html' %}
 <!--jinja2 title 块内容替换-->
-{% block title %}Register/注册{% endblock %}
+{% block title %}注册{% endblock %}
 <!--jinja2 beforehead 块内容替换-->
 {% block beforehead %}
 <!--script中构建vue,向后端API提交合格的注册信息数据-->
 <script>
 
-function validateEmail(email) {
-    var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
-    return re.test(email.toLowerCase());
+function validatePhone(phone) {
+    var re = /^1[3456789]\d{9}$/;
+    return re.test(phone.toLowerCase());
 }
 
 $(function () {
@@ -17,7 +17,7 @@ $(function () {
         el: '#vm',
         data: {
             name: '',
-            email: '',
+            phone: '',
             password1: '',
             password2: ''
         },
@@ -26,10 +26,13 @@ $(function () {
                 event.preventDefault();
                 var $form = $('#vm');
                 if (! this.name.trim()) {
-                    return $form.showFormError('用户名不可为空呦~');
+                    return $form.showFormError('用户名不可为空');
                 }
-                if (! validateEmail(this.email.trim().toLowerCase())) {
-                    return $form.showFormError('手机号错误啦~');
+                if (! this.phone.trim()) {
+                    return $form.showFormError('手机号不可为空');
+                }
+                if (! validatePhone(this.phone.trim().toLowerCase())) {
+                    return $form.showFormError('请输入正确手机号');
                 }
                 if (this.password1.length < 6) {
                     return $form.showFormError('密码至少6位');
@@ -37,11 +40,11 @@ $(function () {
                 if (this.password1 !== this.password2) {
                     return $form.showFormError('两次密码不一致');
                 }
-                var email = this.email.trim().toLowerCase();
+                var phone = this.phone.trim().toLowerCase();
                 $form.postJSON('/api/users', {
                     name: this.name.trim(),
-                    email: email,
-                    passwd: CryptoJS.SHA1(email + ':' + this.password1).toString()
+                    phone: phone,
+                    password: CryptoJS.SHA1(phone + ':' + this.password1).toString()
                 }, function (err, r) {
                     if (err) {
                         return $form.showFormError(err);
