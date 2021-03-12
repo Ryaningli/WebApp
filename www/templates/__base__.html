@@ -109,7 +109,7 @@
                 <li><a href="/manage/">管理</a></li>
                 <li><a href="/signout">注销</a></li>
                 {% else %}
-                <li><a href="/signin">登陆</a></li>
+                <li><a href="/signin">登录</a></li>
                 <li><a href="/register">注册</a></li>
                 {% endif %}
             </ul>
@@ -121,7 +121,8 @@
     </nav>
 
 
-    <div class="uk-container uk-container-medium">
+    {% block content_position %}
+    <div class="uk-container uk-container-medium">{% endblock %}
             <!-- jinja2 content块 -->
             {% block content %}
             {% endblock %}
