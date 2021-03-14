@@ -1,7 +1,7 @@
 <!-- 继承父模板 '__base__.html' -->
 {% extends '__base__.html' %}
 <!--jinja2 title 块内容替换-->
-{% block title %}Signin/登陆{% endblock %}
+{% block title %}登录{% endblock %}
 <!--jinja2 beforehead 块内容替换-->
 {% block beforehead %}
 <!--script中构建vue,向后端API提交登录验证信息数据-->
@@ -11,17 +11,17 @@ $(function() {
     var vmAuth = new Vue({
         el: '#vm',
         data: {
-            email: '',
-            passwd: ''
+            phone: '',
+            password: ''
         },
         methods: {
             submit: function(event) {
                 event.preventDefault();
                 var $form = $('#vm');
-                var email = this.email.trim().toLowerCase();
+                var phone = this.phone.trim().toLowerCase();
                 var data = {
-                        email: email,
-                        passwd: this.passwd==='' ? '' : CryptoJS.SHA1(email + ':' + this.passwd).toString()
+                        phone: phone,
+                        password: this.password==='' ? '' : CryptoJS.SHA1(phone + ':' + this.password).toString()
                     };
                 $form.postJSON('/api/authenticate', data, function(err, result) {
                     if (! err) {
@@ -38,29 +38,31 @@ $(function() {
 
 {% endblock %}
 
+{% block content_position %}
+<div class="uk-container uk-container-medium uk-text-center">
+{% endblock %}
+
 <!--jinja2 content 块内容替换，构建登录页面UI主要内容-->
 {% block content %}
     <div class="uk-grid">
     <div class="uk-width-1-1">
-        <h4>SIGNIN/欢迎登陆！</h4>
+        <h2>欢迎登录！</h2>
         <form id="vm" v-on="submit: submit" class="uk-form-stacked">
             <div class="uk-alert uk-alert-danger uk-hidden"></div>
             <div class="uk-margin-top">
-                <label class="uk-form-label">EMAIL/电子邮箱:</label>
                 <div class="uk-inline">
-                    <span class="uk-form-icon" uk-icon="user"></span>
-                    <input class="uk-input uk-form-width-medium" v-model="email" type="text" maxlength="50" placeholder="Email">
+                    <span class="uk-form-icon" uk-icon="phone"></span>
+                    <input class="uk-input uk-form-large" v-model="phone" type="text" maxlength="50" placeholder="手机号">
                 </div>
             </div>
             <div class="uk-margin-top">
-                <label class="uk-form-label">PASSWORD/输入口令:</label>
                 <div class="uk-inline">
                     <span class="uk-form-icon uk-form-icon-flip" uk-icon="lock"></span>
-                    <input class="uk-input uk-form-width-medium" v-model="passwd" type="password" maxlength="50" placeholder="口令">
+                    <input class="uk-input uk-form-large" v-model="password" type="password" maxlength="50" placeholder="密码">
                 </div>
             </div>
-            <div class="uk-margin-top">
-                <button type="submit" class="uk-button uk-button-primary">SIGNIN/登陆</button>
+            <div class="uk-margin-large">
+                <button type="submit" class="uk-button uk-button-primary uk-button-large uk-width-1-4">点击登录</button>
             </div>
         </form>
     </div>

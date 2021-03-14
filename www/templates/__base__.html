@@ -27,7 +27,7 @@
     <!--jinja2 meta块-->
     {% block meta %}<!-- block meta  -->{% endblock %}
     <!--jinja2 title块-->
-    <title>{% block title %} ? {% endblock %}| AwesomeDavidBlog</title>
+    <title>{% block title %} ? {% endblock %}| 好好学习 天天向上</title>
     <link rel="stylesheet" href="/static/css/uikit.min.css">
     <link rel="stylesheet" href="/static/css/uikit-rtl.min.css">
     <link rel="stylesheet" href="/static/css/awesome.css" />
@@ -53,7 +53,7 @@
         <div class="uk-navbar-left uk-margin-medium-top uk-margin-medium-bottom">
             <a class="uk-navbar-item uk-logo uk-margin-left" href="/">
                 <!--此处uk-icon为图标,读者可以选UIkit自带icon,也可以添加自定义icon重新打包uk-icon.js,详见官网Documentation-->
-                <span class="uk-icon uk-margin-small-right" uk-icon="yelp" ratio="2"></span>
+                <span class="uk-icon uk-margin-small-right" uk-icon="home" ratio="2"></span>
                  好好学习 天天向上
             </a>
             <ul class="uk-navbar-nav">
@@ -71,12 +71,12 @@
                     <div class="uk-navbar-dropdown">
                         <ul class="uk-nav uk-navbar-dropdown-nav">
                             <li><a href="/manage/">Manage</a></li>
-                            <li><a href="/signout"> Logout</a></li>
+                            <li><a href="/logout"> Logout</a></li>
                         </ul>
                     </div>
                 </li>
             {% else %}
-                <li><a href="/signin"> 登录</a></li>
+                <li><a href="/login"> 登录</a></li>
                 <li><a href="/register"> 注册</a></li>
             {% endif %}
             </ul>
@@ -109,7 +109,7 @@
                 <li><a href="/manage/">管理</a></li>
                 <li><a href="/signout">注销</a></li>
                 {% else %}
-                <li><a href="/signin">登录</a></li>
+                <li><a href="/login">登录</a></li>
                 <li><a href="/register">注册</a></li>
                 {% endif %}
             </ul>

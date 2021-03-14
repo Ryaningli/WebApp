@@ -5,10 +5,9 @@ import time
 from aiohttp import web
 from coroweb import get, post
 from models import User, Comment, Blog, next_id
-from apis import APIValueError, APIError
+from apis import APIValueError, APIError, APIPermissionError
 from config import configs
 from log import log, logger
-
 
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
@@ -57,6 +56,12 @@ async def auth_factory(app, handler):
     return auth
 
 
+# 检查用户是否是管理员
+def check_admin(request):
+    if request.__user__ is None or not request.__user__.admin:
+        raise APIPermissionError()
+
+
 # 前端首页
 @get('/')
 def index(request):
@@ -80,6 +85,15 @@ def register():
     }
 
 
+# 前端登录页面
+@get('/login')
+def login():
+    return {
+        '__template__': 'login.html'
+    }
+
+
+# 获取所有用户接口
 @get('/api/users')
 async def api_get_users():
     users = await User.findAll(orderBy='created_at desc')
@@ -148,3 +162,19 @@ async def authenticate(*, phone, password):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
+
+
+# 创建bolg接口
+@post('/api/blogs')
+async def api_create_blog(request, *, name, summary, content):
+    check_admin(request)
+    if not name or not name.strip():
+        raise APIValueError('name', '标题不能为空')
+    if not summary or not summary.strip():
+        raise APIValueError('summary', '摘要不能为空')
+    if not content or not content.strip():
+        raise APIValueError('content', '内容不能为空')
+    blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image,
+                name=name.strip(), summary=summary.strip(), content=content.strip())
+    await blog.save()
+    return blog
