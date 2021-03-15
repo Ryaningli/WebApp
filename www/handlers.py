@@ -5,7 +5,7 @@ import time
 from aiohttp import web
 from coroweb import get, post
 from models import User, Comment, Blog, next_id
-from apis import APIValueError, APIError, APIPermissionError
+from apis import APIValueError, APIError, APIPermissionError, Page
 from config import configs
 from log import log, logger
 
@@ -42,6 +42,18 @@ async def cookie2user(cookie_str):
     except Exception as e:
         log.exception(e)
         return None
+
+
+# 获取页码信息
+def get_page_index(page_str):
+    p = 1
+    try:
+        p = int(page_str)
+    except ValueError as e:
+        pass
+    if p < 1:
+        p = 1
+    return p
 
 
 # 检查用户是否是管理员
@@ -177,3 +189,24 @@ async def api_blog_create(request, *, name, summary, content):
     await blog.save()
     blog.created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(blog.created_at)))    # 创建日期转正常格式
     return blog
+
+
+# 获取日志列表接口
+@get('/api/blogs')
+async def api_blogs(*, page='1'):
+    page_index = get_page_index(page)
+    num = await Blog.findNumber('count(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        return dict(page=p, blogs=())
+    blogs = await Blog.findAll(orderBy='created_at DESC', limit=(p.offset, p.limit))
+    return dict(page=p, blogs=blogs)
+
+
+# 前端日志列表页面
+@get('/manage/blogs')
+def manage_blogs(*, page='1'):
+    return {
+        '__template__': 'manage_blogs.html',
+        'page_index': get_page_index(page)
+    }

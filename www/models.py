@@ -1,6 +1,6 @@
 import time
 import uuid
-from orm import Model, StringField, BooleanField, FloatField, TextField
+from orm import Model, StringField, BooleanField, FloatField, TextField, IntegerField
 
 
 def next_id():
@@ -23,7 +23,7 @@ class User(Model):
 
 class Blog(Model):
     __table__ = 'blogs'
-    id = StringField(primary_key=True, default=next_id(), ddl='varchar(50)')
+    id = IntegerField(primary_key=True, default=None)
     user_id = StringField(ddl='varchar(50)')
     user_name = StringField(ddl='varchar(50)')
     user_image = StringField(ddl='varchar(500)')

@@ -23,7 +23,7 @@ create table users (
 ) engine=innodb default charset=utf8;
 
 create table blogs (
-    `id` varchar(50) not null,
+    `id` int(10) not null auto_increment,
     `user_id` varchar(50) not null,
     `user_name` varchar(50) not null,
     `user_image` varchar(500) not null,
