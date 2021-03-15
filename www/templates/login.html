@@ -23,7 +23,7 @@ $(function() {
                         phone: phone,
                         password: this.password==='' ? '' : CryptoJS.SHA1(phone + ':' + this.password).toString()
                     };
-                $form.postJSON('/api/authenticate', data, function(err, result) {
+                $form.postJSON('/api/login', data, function(err, result) {
                     if (! err) {
                         location.assign('/');
                     }

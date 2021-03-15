@@ -41,7 +41,7 @@ $(function () {
                     return $form.showFormError('两次密码不一致');
                 }
                 var phone = this.phone.trim().toLowerCase();
-                $form.postJSON('/api/users', {
+                $form.postJSON('/api/register', {
                     name: this.name.trim(),
                     phone: phone,
                     password: CryptoJS.SHA1(phone + ':' + this.password1).toString()

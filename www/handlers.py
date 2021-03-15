@@ -37,29 +37,17 @@ async def cookie2user(cookie_str):
         if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
             log.info('无效sha1')
             return None
+        user.password = '******'
+        return user
     except Exception as e:
         log.exception(e)
         return None
 
 
-async def auth_factory(app, handler):
-    async def auth(request):
-        log.info('检查用户: %s %s' % (request.method, request.path))
-        request.__user__ = None
-        cookie_str = request.cookies.get(COOKIE_NAME)
-        if cookie_str:
-            user = await cookie2user(cookie_str)
-            if user:
-                log.info('设置当前用户: %s' % user.phone)
-                request.__user__ = user
-        return (await handler(request))
-    return auth
-
-
 # 检查用户是否是管理员
 def check_admin(request):
     if request.__user__ is None or not request.__user__.admin:
-        raise APIPermissionError()
+        raise APIPermissionError(message='非管理员账户')
 
 
 # 前端首页
@@ -93,6 +81,16 @@ def login():
     }
 
 
+# 前端编辑/创建日志页面
+@get('/manage/blog/create')
+def manage_blog_create():
+    return {
+        '__template__': 'manage_blog_edit.html',
+        'id': '',
+        'action': '/api/blog/create'
+    }
+
+
 # 获取所有用户接口
 @get('/api/users')
 async def api_get_users():
@@ -107,8 +105,8 @@ _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
 
 # 注册接口
-@post('/api/users')
-async def api_register_user(*, phone, name, password):
+@post('/api/register')
+async def api_register(*, phone, name, password):
     if not name or not name.strip():
         raise APIValueError('name', '用户名无效')
     if not phone or not _RE_PHONE.match(phone):
@@ -134,8 +132,8 @@ async def api_register_user(*, phone, name, password):
 
 
 # 登录接口
-@post('/api/authenticate')
-async def authenticate(*, phone, password):
+@post('/api/login')
+async def api_login(*, phone, password):
     if not phone:
         raise APIValueError('phone', '手机号无效')
     if not password:
@@ -165,8 +163,8 @@ async def authenticate(*, phone, password):
 
 
 # 创建bolg接口
-@post('/api/blogs')
-async def api_create_blog(request, *, name, summary, content):
+@post('/api/blog/create')
+async def api_blog_create(request, *, name, summary, content):
     check_admin(request)
     if not name or not name.strip():
         raise APIValueError('name', '标题不能为空')
@@ -177,4 +175,5 @@ async def api_create_blog(request, *, name, summary, content):
     blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image,
                 name=name.strip(), summary=summary.strip(), content=content.strip())
     await blog.save()
+    blog.created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(blog.created_at)))    # 创建日期转正常格式
     return blog
