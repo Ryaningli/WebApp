@@ -1,28 +1,44 @@
-import asyncio
-import orm
-from models import User
-
-loop = asyncio.get_event_loop()
-
-
-async def test():
-    await orm.create_pool(user='ryan', password='1116', db='awesome', loop=loop)
-
-    u = User(name='B', phone='18815596970', email='16699@qq.com', password='abc123', image='about:blank')
-
-    await u.save()
+import random
+import time
+from multiprocessing import Process, Queue
+from time import sleep
+from www.log import Log
 
 
-async def se():
-    await orm.create_pool(user='ryan', password='1116', db='awesome', loop=loop)
-    u = User()
-    a = await u.find('001614495926582b4285af46b0c48ada736283e39a4efb6000')
-    return print(a)
+def app(q):
+    t = time.time()
+    for i in range(100):
+        print('进行中。。。：%s' % i)
+        sleep(1)
+        q.put(i)
+    print(time.time() - t)
 
 
-async def de():
-    await orm.create_pool(user='ryan', password='1116', db='awesome', loop=loop)
-    u = User(id='0016144991756592c3e816e576b4255a56cdd15c6d1f465000')
-    await u.remove()
+def logg(q):
+    log = Log().get_logger()
+    while True:
+        value = q.get(True)
 
-loop.run_until_complete(test())
+        log.info(value)
+        sleep(random.random() * 2)
+
+
+if __name__ == '__main__':
+
+    q = Queue()
+
+    # p1 = Process(target=app, args=(q,))
+    p2 = Process(target=logg, args=(q,))
+
+    # p1.start()
+    p2.start()
+
+    for i in range(100):
+        print('进行中。。。：%s' % i)
+        sleep(1)
+        q.put(i)
+
+    # p1.join()
+
+    # p2.terminate()
+

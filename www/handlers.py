@@ -7,7 +7,7 @@ from coroweb import get, post
 from models import User, Comment, Blog, next_id
 from apis import APIValueError, APIError, APIPermissionError, Page
 from config import configs
-from log import log, logger
+from log import log
 
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret

@@ -5,7 +5,7 @@ import os
 import time
 from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
-from log import log, logger
+from log import log
 import orm
 from coroweb import add_routes, add_static
 from config import configs

@@ -4,7 +4,7 @@ import inspect
 import os
 from urllib import parse
 from aiohttp import web
-from log import log, logger
+from log import log
 from apis import APIError
 
 

@@ -65,34 +65,6 @@ class Log:
         """
         self.logger.info(case_name + " - Code:" + code + " - msg:" + msg)
 
-    def get_report_path(self):
-        """
-        get report file path
-        :return:
-        """
-        report_path = os.path.join(logPath, "report.html")
-        return report_path
-
-    def get_result_path(self):
-        """
-        get test result path
-        :return:
-        """
-        return logPath
-
-    def write_result(self, result):
-        """
-
-        :param result:
-        :return:
-        """
-        result_path = os.path.join(logPath, "report.txt")
-        fb = open(result_path, "wb")
-        try:
-            fb.write(result)
-        except FileNotFoundError as ex:
-            log.error(str(ex))
-
 
 class MyLog:
     log = None
@@ -112,12 +84,21 @@ class MyLog:
         return MyLog.log
 
 
+class L:
+    def __init__(self):
+        pass
+
+    def info(self, m):
+        pass
+
+
 logger = MyLog.get_log()
 log = logger.get_logger()
 
+# log = Log().get_logger()
+
+
+# log = L()
+
 if __name__ == "__main__":
-    logger = MyLog.get_log()
-    log = logger.get_logger()
-    log.debug("test debug")
-    # log.info("test info")
-    log.error('错误')
+    pass
