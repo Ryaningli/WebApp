@@ -2,6 +2,7 @@ import logging
 import os
 import threading
 from datetime import datetime
+from queue import Queue
 
 
 class Log:
@@ -75,7 +76,6 @@ class MyLog:
 
     @staticmethod
     def get_log():
-
         if MyLog.log is None:
             MyLog.mutex.acquire()
             MyLog.log = Log()
@@ -84,21 +84,8 @@ class MyLog:
         return MyLog.log
 
 
-class L:
-    def __init__(self):
-        pass
-
-    def info(self, m):
-        pass
-
-
 logger = MyLog.get_log()
 log = logger.get_logger()
-
-# log = Log().get_logger()
-
-
-# log = L()
 
 if __name__ == "__main__":
     pass
