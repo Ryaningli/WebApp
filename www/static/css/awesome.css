@@ -1,6 +1,17 @@
 /*
  * custom css
  */
+
+ /* 弹窗提示文字居中 */
+.uk-notification-message {
+    text-align:center;
+}
+
+/* 弹窗提示的关闭按钮右对其 */
+svg:not(:root) {
+    float: right;
+}
+
 a:hover, a:active {
     text-decoration: none;
 }

@@ -10,7 +10,7 @@
     height: 45px;
     padding-right: 12px;
     padding-left: 12px;
-};
+}
     .uk-form-large {
     height: 50px;
 }
@@ -30,6 +30,12 @@ $(function() {
             submit: function(event) {
                 event.preventDefault();
                 var $form = $('#vm');
+                if (! this.phone.trim()) {
+                    return $form.showFormError('用户名不可为空');
+                }
+                if (! this.password.trim()) {
+                    return $form.showFormError('密码不可为空');
+                }
                 var phone = this.phone.trim().toLowerCase();
                 var data = {
                         phone: phone,

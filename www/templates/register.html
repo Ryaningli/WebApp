@@ -10,10 +10,10 @@
     height: 45px;
     padding-right: 12px;
     padding-left: 12px;
-};
+}
     .uk-form-large {
     height: 50px;
-};
+}
 </style>
 
 <!--script中构建vue,向后端API提交合格的注册信息数据-->
@@ -46,22 +46,34 @@ $(function () {
                 if (! validatePhone(this.phone.trim().toLowerCase())) {
                     return $form.showFormError('请输入正确手机号');
                 }
-                if (this.password1.length < 6) {
-                    return $form.showFormError('密码至少6位');
+                if (this.password1.length < 6 || this.password1.length >20) {
+                    return $form.showFormError('密码应为6-20位');
                 }
                 if (this.password1 !== this.password2) {
                     return $form.showFormError('两次密码不一致');
                 }
-                var phone = this.phone.trim().toLowerCase();
+                var phone = this.phone.trim();
                 $form.postJSON('/api/register', {
                     name: this.name.trim(),
                     phone: phone,
                     password: CryptoJS.SHA1(phone + ':' + this.password1).toString()
                 }, function (err, r) {
+                    /* 不需要了
                     if (err) {
+                        console.log('注册');
                         return $form.showFormError(err);
                     }
-                    return location.assign('/login');
+                    */
+                    if (! err) {
+                        UIkit.notification({
+                            message: r.name + '! 注册成功',
+                            status: 'success',
+                            timeout: 3000
+                        });
+                        setTimeout(function(){
+                            return location.assign('/login');
+                        }, 500);
+                    }
                 });
             }
         }
@@ -99,7 +111,7 @@ $(function () {
             <div class="uk-margin-top">
                 <div class="uk-form-controls uk-inline">
                     <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                    <input class="uk-input uk-form-large" v-model="password1" type="password" maxlength="24" placeholder="输入密码">
+                    <input class="uk-input uk-form-large" v-model="password1" type="password" maxlength="24" placeholder="输入密码（6-20位）">
                 </div>
             </div>
             <div class="uk-margin">

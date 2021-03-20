@@ -6,6 +6,7 @@ create database awesome;
 
 use awesome;
 
+CREATE USER 'ryan'@'%' IDENTIFIED BY '1116';
 grant select, insert, update, delete on awesome.* to 'ryan'@'%';
 
 create table users (

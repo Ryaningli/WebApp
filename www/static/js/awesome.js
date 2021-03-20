@@ -237,14 +237,21 @@ $(function () {
                     console.warn('Cannot find .uk-alert-danger element.');
                     return;
                 }
+                // 重写出错弹出框
                 if (err) {
-                    $alert.text(err.message ? err.message : (err.error ? err.error : err)).removeClass('uk-hidden').show();
-                    if (($alert.offset().top - 60) < $(window).scrollTop()) {
-                        $('html,body').animate({ scrollTop: $alert.offset().top - 60 });
-                    }
-                    if (fieldName) {
-                        $form.find('[name=' + fieldName + ']').addClass('uk-form-danger');
-                    }
+                        if (err.message){
+                            UIkit.notification({message: err.message,status: 'danger',timeout: 3000});
+                        }
+                        else {
+                            UIkit.notification({message: err,status: 'danger',timeout: 3000});
+                        }
+//                    $alert.text(err.message ? err.message : (err.error ? err.error : err)).removeClass('uk-hidden').show();
+//                    if (($alert.offset().top - 60) < $(window).scrollTop()) {
+//                        $('html,body').animate({ scrollTop: $alert.offset().top - 60 });
+//                    }
+//                    if (fieldName) {
+//                        $form.find('[name=' + fieldName + ']').addClass('uk-form-danger');
+//                    }
                 }
                 else {
                     $alert.addClass('uk-hidden').hide();
