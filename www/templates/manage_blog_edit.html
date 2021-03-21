@@ -24,7 +24,8 @@ function initVM(blog) {
                         $form.showFormError(err);
                     }
                     else {
-                        return location.assign('/manage/blogs');
+                        // 提交成功后跳转至日志详情（后期可改为提交成功弹窗选择下一步去向：日志详情、日志列表、首页）
+                        return location.assign('/blog/' + r.id);
                     }
                 });
             }
@@ -35,7 +36,7 @@ function initVM(blog) {
 
 $(function () {
     if (ID) {
-        getJSON('/api/blogs/' + ID, function (err, blog) {
+        getJSON('/api/blog/' + ID, function (err, blog) {
             if (err) {
                 return fatal(err);
             }

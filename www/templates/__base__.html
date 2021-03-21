@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="/static/css/uikit.min.css">
     <link rel="stylesheet" href="/static/css/uikit-rtl.min.css">
     <link rel="stylesheet" href="/static/css/awesome.css" />
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/sha1.min.js"></script>
     <script src="/static/js/uikit.min.js"></script>
@@ -42,6 +43,7 @@
     <!--jinja2 beforehead块-->
     {% block beforehead %}<!-- before head  -->{% endblock %}
 </head>
+
 
 <!--导航页正文内容-->
 <body>
@@ -62,6 +64,15 @@
                 <li><a href="https://aodabo.tech/tags/tutorial">教程</a></li>
                 <li><a href="https://aodabo.tech/tags/landscape">景观</a></li>
                 <li><a href="https://aodabo.tech/tags/coding">编程</a></li>
+                <li>
+                    <a href="#">管理</a>
+                    <div class="uk-navbar-dropdown">
+                        <ul class="uk-nav uk-navbar-dropdown-nav">
+                            <li><a href="/manage/blog/create">创建日志</a></li>
+                            <li><a href="#">用户列表</a></li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
         <div class="uk-navbar-right uk-margin-medium-top uk-margin-medium-bottom">
@@ -122,8 +133,9 @@
     </nav>
 
 
-    {% block content_position %}
-    <div class="uk-container uk-container-medium">{% endblock %}
+        {% block content_position %}
+        <div class="uk-container uk-container-medium">
+        {% endblock %}
             <!-- jinja2 content块 -->
             {% block content %}
             {% endblock %}

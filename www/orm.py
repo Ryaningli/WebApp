@@ -216,6 +216,12 @@ class Model(dict, metaclass=ModelMetaclass):
             return None
         return cls(**rs[0])
 
+    @classmethod
+    async def find_sql(cls, sql):
+        # select sql语句
+        rs = await select(sql, None)
+        return cls(**rs[0])
+
     # 往Model类添加实例方法，就可以让所有子类调用实例方法
     async def save(self):
         args = list(map(self.getValueOrDefault, self.__fields__))

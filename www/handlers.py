@@ -3,6 +3,7 @@ import json
 import re
 import time
 from aiohttp import web
+import markdown
 from coroweb import get, post
 from models import User, Comment, Blog, next_id
 from apis import APIValueError, APIError, APIPermissionError, Page
@@ -62,6 +63,9 @@ def check_admin(request):
         raise APIPermissionError(message='非管理员账户')
 
 
+'''前端页面'''
+
+
 # 前端首页
 @get('/')
 def index(request):
@@ -93,14 +97,44 @@ def login():
     }
 
 
-# 前端编辑/创建日志页面
+# 日志详情
+@get('/blog/{id}')
+async def get_blog(id):
+    blog = await Blog.find(id)
+    comments = await Comment.findAll('id=?', [id], orderBy='created_at desc')
+    for c in comments:
+        c.html_content = markdown.markdown(c.content)
+    blog.html_content = markdown.markdown(blog.content)
+    return{
+        '__template__': 'blog.html',
+        'blog': blog,
+        'comments': comments
+    }
+
+
+'''管理端页面'''
+
+
+# 编辑/创建日志页面
 @get('/manage/blog/create')
 def manage_blog_create():
     return {
         '__template__': 'manage_blog_edit.html',
         'id': '',
-        'action': '/api/blog/create'
+        'action': '/api/blog'
     }
+
+
+# 管理端日志列表页面
+@get('/manage/blogs')
+def manage_blogs(*, page='1'):
+    return {
+        '__template__': 'manage_blogs.html',
+        'page_index': get_page_index(page)
+    }
+
+
+'''接口'''
 
 
 # 获取所有用户接口
@@ -175,7 +209,7 @@ async def api_login(*, phone, password):
 
 
 # 创建bolg接口
-@post('/api/blog/create')
+@post('/api/blog')
 async def api_blog_create(request, *, name, summary, content):
     check_admin(request)
     if not name or not name.strip():
@@ -188,11 +222,14 @@ async def api_blog_create(request, *, name, summary, content):
                 name=name.strip(), summary=summary.strip(), content=content.strip())
     await blog.save()
     blog.created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(blog.created_at)))    # 创建日期转正常格式
+    # 提交日志后查询当前日志并返回id（后期可分开）
+    b = await Blog.find_sql('SELECT MAX(id) FROM blogs;')
+    blog.id = b['MAX(id)']
     return blog
 
 
 # 获取日志列表接口
-@get('/api/blogs')
+@get('/api/blog')
 async def api_blogs(*, page='1'):
     page_index = get_page_index(page)
     num = await Blog.findNumber('count(id)')
@@ -201,12 +238,3 @@ async def api_blogs(*, page='1'):
         return dict(page=p, blogs=())
     blogs = await Blog.findAll(orderBy='created_at DESC', limit=(p.offset, p.limit))
     return dict(page=p, blogs=blogs)
-
-
-# 前端日志列表页面
-@get('/manage/blogs')
-def manage_blogs(*, page='1'):
-    return {
-        '__template__': 'manage_blogs.html',
-        'page_index': get_page_index(page)
-    }
