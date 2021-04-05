@@ -37,7 +37,7 @@ $(function () {
         <!--日志内容详情-->
         <article class="uk-article">
             <h2>{{ blog.name }}</h2>
-            <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
+            <p class="uk-article-meta">发表于{{ blog.create_time }}</p>
             <p>{{ blog.html_content|safe }}</p>
         </article>
 
@@ -79,7 +79,7 @@ $(function () {
                     <header class="uk-comment-header">
                         <img class="uk-comment-avatar uk-border-circle" width="50" height="50" src="{{ comment.user_image }}">
                         <h4 class="uk-comment-title">{{ comment.user_name }} {% if comment.user_id==blog.user_id %}(作者){% endif %}</h4>
-                        <p class="uk-comment-meta">{{ comment.created_at|datetime }}</p>
+                        <p class="uk-comment-meta">{{ comment.create_time }}</p>
                     </header>
                     <div class="uk-comment-body">
                         {{ comment.html_content|safe }}
@@ -108,7 +108,7 @@ $(function () {
     <div class="uk-hidden@m">
         <article class="uk-article">
             <h3>{{ blog.name }}</h3>
-            <p class="uk-article-meta">{{ blog.user_name }} 发表于{{ blog.created_at|datetime }}</p>
+            <p class="uk-article-meta">{{ blog.user_name }} 发表于{{ blog.create_time }}</p>
             <p>{{ blog.html_content|safe }}</p>
         </article>
 
@@ -149,7 +149,7 @@ $(function () {
                     <header class="uk-comment-header">
                         <img class="uk-comment-avatar uk-border-circle" width="50" height="50" src="{{ comment.user_image }}">
                         <h5 class="uk-comment-title">{{ comment.user_name }} {% if comment.user_id==blog.user_id %}(作者){% endif %}</h5>
-                        <p class="uk-comment-meta">{{ comment.created_at|datetime }}</p>
+                        <p class="uk-comment-meta">{{ comment.create_time }}</p>
                     </header>
                     <div class="uk-comment-body">
                         {{ comment.html_content|safe }}

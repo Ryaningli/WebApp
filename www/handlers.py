@@ -6,6 +6,7 @@ from aiohttp import web
 import markdown
 from coroweb import get, post
 from models import User, Comment, Blog, next_id
+from models import get_time
 from apis import APIValueError, APIError, APIPermissionError, Page
 from config import configs
 from log import log
@@ -59,24 +60,28 @@ def get_page_index(page_str):
 
 # 检查用户是否是管理员
 def check_admin(request):
-    if request.__user__ is None or not request.__user__.admin:
+    if request.__user__ is None:
+        raise APIPermissionError(message='请登录')
+    if not request.__user__.admin:
         raise APIPermissionError(message='非管理员账户')
 
 
-'''前端页面'''
+'''客户端页面'''
 
 
 # 前端首页
 @get('/')
-def index(request):
-    summary = '这是博客的内容最好，多几个字，因为都很长的。'
-    blogs = [
-        Blog(id='1', name='Test Blog', summary=summary, created_at=time.time()-120),
-        Blog(id='2', name='Something New', summary=summary, created_at=time.time()-3600),
-        Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time()-7200)
-    ]
+async def index(*, page='1'):
+    page_index = get_page_index(page)
+    num = await Blog.findNumber('COUNT(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        blogs = []
+    else:
+        blogs = await Blog.findAll(orderBy='id desc', limit=(p.offset, p.limit))
     return {
         '__template__': 'blogs.html',
+        'page': p,
         'blogs': blogs
     }
 
@@ -101,7 +106,7 @@ def login():
 @get('/blog/{id}')
 async def get_blog(id):
     blog = await Blog.find(id)
-    comments = await Comment.findAll('id=?', [id], orderBy='created_at desc')
+    comments = await Comment.findAll('id=?', [id], orderBy='create_time desc')
     for c in comments:
         c.html_content = markdown.markdown(c.content)
     blog.html_content = markdown.markdown(blog.content)
@@ -140,7 +145,7 @@ def manage_blogs(*, page='1'):
 # 获取所有用户接口
 @get('/api/users')
 async def api_get_users():
-    users = await User.findAll(orderBy='created_at desc')
+    users = await User.findAll(orderBy='create_time desc')
     for u in users:
         u.password = '******'
     return dict(users=users)
@@ -200,9 +205,8 @@ async def api_login(*, phone, password):
     # 验证成功，设置cookie
     r = web.Response()
     r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
-
+    user.create_time = str(user.create_time)
     user.password = '******'
-    user.created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(user.created_at)))    # 创建日期转正常格式
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
@@ -221,20 +225,40 @@ async def api_blog_create(request, *, name, summary, content):
     blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image,
                 name=name.strip(), summary=summary.strip(), content=content.strip())
     await blog.save()
-    blog.created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(blog.created_at)))    # 创建日期转正常格式
-    # 提交日志后查询当前日志并返回id（后期可分开）
-    b = await Blog.find_sql('SELECT MAX(id) FROM blogs;')
-    blog.id = b['MAX(id)']
+    return blog
+
+
+# 编辑日志接口
+@post('/api/blog/{id}')
+async def api_blog_edit(id, request, *, name, summary, content):
+    check_admin(request)
+    if not name or not name.strip():
+        raise APIValueError('name', '标题不能为空')
+    if not summary or not summary.strip():
+        raise APIValueError('summary', '摘要不能为空')
+    if not content or not content.strip():
+        raise APIValueError('content', '内容不能为空')
+    blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image,
+                name=name.strip(), summary=summary.strip(), content=content.strip())
+    sql = 'UPDATE `blogs` SET `name` = "%s", `summary` = "%s", `content` = "%s", `update_time` = "%s" WHERE `id` = %s'\
+          % (name.strip(), summary.strip(), content.strip(), get_time(), id)
+    print(sql)
+    await blog.sql_execute(sql)
     return blog
 
 
 # 获取日志列表接口
-@get('/api/blog')
+@get('/api/blogs')
 async def api_blogs(*, page='1'):
     page_index = get_page_index(page)
     num = await Blog.findNumber('count(id)')
     p = Page(num, page_index)
     if num == 0:
         return dict(page=p, blogs=())
-    blogs = await Blog.findAll(orderBy='created_at DESC', limit=(p.offset, p.limit))
-    return dict(page=p, blogs=blogs)
+    blogs = await Blog.findAll(orderBy='id DESC', limit=(p.offset, p.limit))
+    new_blogs = []
+    for blog in blogs:
+        blog['create_time'] = str(blog['create_time'])
+        blog['update_time'] = str(blog['update_time'])
+        new_blogs.append(blog)
+    return dict(page=p, blogs=new_blogs)

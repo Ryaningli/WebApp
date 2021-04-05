@@ -9,6 +9,12 @@ def next_id():
     return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex)
 
 
+# 获取当前格式化的时间
+def get_time():
+    time_local = time.localtime(time.time())
+    return time.strftime('%Y-%m-%d %H:%M:%S', time_local)
+
+
 class User(Model):
     __table__ = 'users'
     id = StringField(primary_key=True, default=next_id(), ddl='varchar(50)')
@@ -18,7 +24,7 @@ class User(Model):
     admin = BooleanField()
     name = StringField(ddl='varchar(50)')
     image = StringField(ddl='varchar(500)')
-    created_at = FloatField(default=time.time())
+    create_time = StringField(default=get_time())
 
 
 class Blog(Model):
@@ -30,15 +36,16 @@ class Blog(Model):
     name = StringField(ddl='varchar(50)')
     summary = StringField(ddl='varchar(200)')
     content = TextField()
-    created_at = FloatField(default=time.time)
+    create_time = StringField(default=get_time())
+    update_time = StringField(default=get_time())
 
 
 class Comment(Model):
     __table__ = 'comments'
-    id = StringField(primary_key=True, default=next_id(), ddl='varchar(50)')
-    blog_id = StringField(ddl='varchar(50)')
+    id = IntegerField(primary_key=True, default=None)
+    blog_id = IntegerField()
     user_id = StringField(ddl='varchar(50)')
     user_name = StringField(ddl='varchar(50)')
     user_image = StringField(ddl='varchar(500)')
     content = TextField()
-    created_at = FloatField(default=time.time)
+    create_time = StringField(default=get_time())

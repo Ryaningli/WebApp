@@ -1,7 +1,7 @@
 <!-- 继承父模板 '__base__.html' -->
 {% extends '__base__.html' %}
 <!--jinja2 title 块内容替换-->
-{% block title %}凹大卜{% endblock %}
+{% block title %}好好学习 天天向上{% endblock %}
 <!--jinja2 beforehead 块内容替换-->
 {% block beforehead %}
 
@@ -16,7 +16,7 @@
     {% for blog in blogs %}
         <article class="uk-article">
             <h3><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h3>
-            <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
+            <p class="uk-article-meta">发表于{{ blog.create_time }}</p>
             <p>{{ blog.summary }}</p>
             <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
         </article>
@@ -59,7 +59,7 @@
     {% for blog in blogs %}
         <article class="uk-article">
             <h5><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h5>
-            <p class="uk-article-meta">发表于{{ blog.created_at|datetime }}</p>
+            <p class="uk-article-meta">发表于{{ blog.create_time}}</p>
             <p>{{ blog.summary }}</p>
             <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
         </article>

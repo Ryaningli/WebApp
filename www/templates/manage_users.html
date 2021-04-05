@@ -36,17 +36,17 @@ function initVM(data) {
     });
 }
 
-$(function() {
-    getJSON('/api/users', {
-        page: {{ page_index }}
-    }, function (err, results) {
-        if (err) {
-            return fatal(err);
-        }
-        $('#loading').hide();
-        initVM(results);
+    $(function() {
+        getJSON('/api/users', {
+            page: {{ page_index }}
+        }, function (err, results) {
+            if (err) {
+                return fatal(err);
+            }
+            $('#loading').hide();
+            initVM(results);
+        });
     });
-});
 
 </script>
 

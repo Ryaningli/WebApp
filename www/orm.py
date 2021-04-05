@@ -73,7 +73,7 @@ def create_args_string(num):
 
 class ModelMetaclass(type):
     """
-    __new__()放法接收到的参数依次是：
+    __new__()方法接收到的参数依次是：
     cls：当前准备创建的类的对象 class
     name：类的名字 str
     bases：类继承的父类集合 Tuple
@@ -217,10 +217,15 @@ class Model(dict, metaclass=ModelMetaclass):
         return cls(**rs[0])
 
     @classmethod
-    async def find_sql(cls, sql):
+    async def sql_select(cls, sql):
         # select sql语句
         rs = await select(sql, None)
         return cls(**rs[0])
+
+    async def sql_execute(self, sql):
+        rows = await execute(sql, None)
+        if rows != 1:
+            log.warning('通过主键执行失败，影响行数: %s' % rows)
 
     # 往Model类添加实例方法，就可以让所有子类调用实例方法
     async def save(self):
@@ -228,21 +233,20 @@ class Model(dict, metaclass=ModelMetaclass):
         args.append(self.getValueOrDefault(self.__primary_key__))
         rows = await execute(self.__insert__, args)
         if rows != 1:
-            log.warning('failed to remove by primary key: affected rows: %s' % rows)
+            log.warning('通过主键保存失败，影响行数: %s' % rows)
 
     async def update(self):
         args = list(map(self.getValue, self.__fields__))
         args.append(self.getValue(self.__primary_key__))
         rows = await execute(self.__update__, args)
-        print(rows)
         if rows != 1:
-            log.warning('failed to remove by primary key: affected rows: %s' % rows)
+            log.warning('通过主键更新失败，影响行数: %s' % rows)
 
     async def remove(self):
         args = [self.getValue(self.__primary_key__)]
         rows = await execute(self.__delete__, args)
         if rows != 1:
-            log.warning('failed to remove by primary key: affected rows: %s' % rows)
+            log.warning('通过主键删除失败，影响行数: %s' % rows)
 
 
 # 定义Field
