@@ -135,7 +135,8 @@ def manage_blog_create():
 def manage_blogs(*, page='1'):
     return {
         '__template__': 'manage_blogs.html',
-        'page_index': get_page_index(page)
+        'page_index':
+            (page)
     }
 
 
