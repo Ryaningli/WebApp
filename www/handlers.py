@@ -70,20 +70,20 @@ def check_admin(request):
 
 
 # 前端首页
-@get('/')
-async def index(*, page='1'):
-    page_index = get_page_index(page)
-    num = await Blog.findNumber('COUNT(id)')
-    p = Page(num, page_index)
-    if num == 0:
-        blogs = []
-    else:
-        blogs = await Blog.findAll(orderBy='id desc', limit=(p.offset, p.limit))
-    return {
-        '__template__': 'blogs.html',
-        'page': p,
-        'blogs': blogs
-    }
+# @get('/')
+# async def index(*, page='1'):
+#     page_index = get_page_index(page)
+#     num = await Blog.findNumber('COUNT(id)')
+#     p = Page(num, page_index)
+#     if num == 0:
+#         blogs = []
+#     else:
+#         blogs = await Blog.findAll(orderBy='id desc', limit=(p.offset, p.limit))
+#     return {
+#         '__template__': 'blogs.html',
+#         'page': p,
+#         'blogs': blogs
+#     }
 
 
 # 前端注册页面
@@ -135,10 +135,16 @@ def manage_blog_create():
 def manage_blogs(*, page='1'):
     return {
         '__template__': 'manage_blogs.html',
-        'page_index':
-            (page)
+        'page_index':(page)
     }
 
+
+@get('/')
+async def index(*, page='1'):
+    return {
+        '__template__': 'blogs.html',
+        'page_index':(page)
+    }
 
 '''接口'''
 

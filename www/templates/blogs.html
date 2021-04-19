@@ -5,6 +5,60 @@
 <!--jinja2 beforehead 块内容替换-->
 {% block beforehead %}
 
+<script>
+
+    function initVM(data) {
+        var vm = new Vue({
+            el: '#vm',
+            data: {
+                blogs: data.blogs,
+                page: data.page
+            },
+            methods: {
+                previous: function () {
+                    gotoPage(this.page.page_index - 1);
+                },
+                next: function () {
+                    gotoPage(this.page.page_index + 1);
+                },
+                edit_blog: function (blog) {
+                    location.assign('/manage/blogs/edit?id=' + blog.id);
+                },
+                delete_blog: function (blog) {
+                    if (confirm('确认要删除“' + blog.name + '”？删除后不可恢复！')) {
+                        postJSON('/api/blogs/' + blog.id + '/delete', function (err, r) {
+                            if (err) {
+                                return alert(err.message || err.error || err);
+                            }
+                            refresh();
+                        });
+                    }
+                }
+            }
+        });
+        var blog = data.blogs[0];
+        document.querySelector('#blog-name').innerHTML = blog.name;
+        document.querySelector('#blog-name').setAttribute('href', '/blog/' + blog.id);
+        document.querySelector('#blog-summary').innerHTML = blog.summary;
+        document.querySelector('#blog-time').innerHTML = blog.update_time;
+
+        $('#vm').show();
+    }
+
+    $(function() {
+        getJSON('/api/blogs', {
+            page: {{ page_index }}
+    }, function (err, results) {
+            if (err) {
+                return fatal(err);
+            }
+            $('#loading').hide();
+            initVM(results);
+        });
+    });
+
+</script>
+
 {% endblock %}
 
 <!--jinja2 content 块内容替换-->
@@ -13,61 +67,24 @@
     <!--日志列表内容-->
     <div class="uk-grid  uk-visible@m">
     <div class="uk-width-3-4">
-    {% for blog in blogs %}
+
         <article class="uk-article">
-            <h3><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h3>
-            <p class="uk-article-meta">发表于{{ blog.create_time }}</p>
-            <p>{{ blog.summary }}</p>
-            <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
+            <h5><a id="blog-name"></a></h5>
+            <p class="uk-article-meta" id="blog-time"></p>
+            <p id="blog-summary"></p>
+            <p><a id="blog-href">继续阅读<i class="uk-icon-angle-double-right"></i></a></p>
         </article>
-        <hr>
-    {% endfor %}
     <!--分页导航栏，在父模板的开头定义过-->
     {{ pagination("blogs") }}
     </div>
 
-    <!--uk-visible@m是大于中等尺寸屏幕时显示的UI-->
-    <!--右边侧导航栏-->
-    <div class="uk-width-1-4 uk-visible@m">
-            <h4>站内搜索</h4>
-            <FORM method=GET action="https://www.google.com/search">
-                <div class="uk-inline">
-                    <a class="uk-form-icon uk-form-icon-flip" href="#" uk-icon="search"></a>
-                    <INPUT class="uk-input" TYPE=text name=q placeholder="站内搜索" size=31 maxlength=255 value="">
-                </div>
-                <font size=-1>
-                    <INPUT TYPE=hidden name=domains value="aodabo.tech"><br>
-                    <INPUT TYPE=hidden name=sitesearch value="aodabo.tech"></br>
-                </font>
-                <button TYPE=submit name=btnG class="uk-button uk-button-default"> SEARCH</button>
-
-            </FORM>
-
-
-            <h4>亲密链接</h4>
-            <ul class="uk-list uk-list-divider">
-                    <li><a target="_blank" href="https://aodabo.tech">Secret | 镜像</a></li>
-                    <li><a target="_blank" href="https://aodabo.tech/tags/landscape">Lilidai | 景观</a></li>
-                    <li><a target="_blank" href="https://www.jiumodiary.com/">Reading | 读书</a></li>
-            </ul>
-    </div>
     </div>
 
-    <!--uk-hidden@m是小于中等尺寸屏幕时显示的UI-->
-    <!--移动屏幕时日志列表排版-->
-    <div class="uk-hidden@m">
-    {% for blog in blogs %}
-        <article class="uk-article">
-            <h5><a href="/blog/{{ blog.id }}">{{ blog.name }}</a></h5>
-            <p class="uk-article-meta">发表于{{ blog.create_time}}</p>
-            <p>{{ blog.summary }}</p>
-            <p><a href="/blog/{{ blog.id }}">继续阅读 <i class="uk-icon-angle-double-right"></i></a></p>
-        </article>
-        <hr>
-    {% endfor %}
+
+
+
     <!--分页导航栏，在父模板的开头定义过-->
     {{ pagination("blogs") }}
-    </div>
 
 
 {% endblock %}
