@@ -1,6 +1,6 @@
 -- schema.sql
 
-DROP USER 'ryan';
+DROP USER IF EXISTS 'ryan';
 CREATE USER 'ryan'@'%' IDENTIFIED BY '1116';
 grant select, insert, update, delete on awesome.* to 'ryan'@'%';
 
